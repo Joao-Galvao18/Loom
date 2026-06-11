@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loom — video instrument</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dot"></span>Loom</div>
+  <button id="btnAbout" class="link">About</button>
+  <div class="spacer"></div>
+  <div class="ctl master">
+    <label>Master volume</label>
+    <input type="range" id="master" min="0" max="100" value="70">
+  </div>
+  <button id="btnPlay" class="ghost" disabled>Pause</button>
+  <button id="btnClear" class="ghost">Clear all</button>
+  <button id="btnCam" class="ghost">Camera</button>
+  <button id="btnVideo" class="solid">Load video</button>
+  <input type="file" id="file" accept="video/*" hidden>
+</header>
+
+<main>
+  <section id="stage">
+    <canvas id="view"></canvas>
+    <div id="empty">
+      <div class="card">
+        <p class="title">No video loaded</p>
+        <p class="sub">Load a static shot<br>
+          Click once to start a rope, click again to finish it.<br>
+          Movement crossing a rope plays its note.</p>
+        <div class="row">
+          <button id="btnVideo2" class="solid">Load video</button>
+          <button id="btnCam2" class="ghost">Use camera</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside id="sidebar">
+    <div class="panel">
+      <h2>Ropes</h2>
+      <ul id="lineList"><li class="empty-row">None yet</li></ul>
+    </div>
+
+    <div class="panel" id="inspector" hidden>
+      <h2>Rope <span id="insName">—</span><em id="insNote">—</em></h2>
+
+      <div class="field">
+        <label for="insScale">Scale</label>
+        <select id="insScale"></select>
+      </div>
+      <div class="field">
+        <label for="insVoice">Voice</label>
+        <select id="insVoice"></select>
+      </div>
+      <div class="field">
+        <label for="insOct">Octave shift</label>
+        <select id="insOct">
+          <option value="-2">−2</option>
+          <option value="-1">−1</option>
+          <option value="0" selected>0</option>
+          <option value="1">+1</option>
+          <option value="2">+2</option>
+        </select>
+      </div>
+
+      <div class="ctl">
+        <label>Sensitivity <b id="vInsSens">50</b></label>
+        <input type="range" id="insSens" min="1" max="100" value="50">
+      </div>
+      <div class="ctl">
+        <label>Volume <b id="vInsVol">80</b></label>
+        <input type="range" id="insVol" min="0" max="100" value="80">
+      </div>
+      <div class="ctl">
+        <label>Retrigger <b id="vInsCool">120 ms</b></label>
+        <input type="range" id="insCool" min="30" max="1200" value="120">
+      </div>
+      <div class="ctl">
+        <label>Release <b id="vInsRel">1.4 s</b></label>
+        <input type="range" id="insRel" min="2" max="40" value="14">
+      </div>
+
+      <div class="field switch-field">
+        <label for="insMute">Muted</label>
+        <label class="switch">
+          <input type="checkbox" id="insMute">
+          <span class="track"><span class="thumb"></span></span>
+        </label>
+      </div>
+
+      <button id="insDelete" class="danger">Delete rope</button>
+    </div>
+
+    <div class="panel help">
+      <h2>How to use</h2>
+      <p>Click two points to draw a rope anywhere, even outside the video frame. Click a rope to edit it, grab an endpoint to move it.</p>
+      <p>Pitch follows height, pan follows horizontal position. Esc cancels or deselects, Delete removes.</p>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <span class="footer-label">New rope defaults</span>
+  <div class="ctl">
+    <label>Scale</label>
+    <select id="defScale"></select>
+  </div>
+  <div class="ctl">
+    <label>Voice</label>
+    <select id="defVoice"></select>
+  </div>
+  <div class="ctl">
+    <label>Sensitivity <b id="vDefSens">50</b></label>
+    <input type="range" id="defSens" min="1" max="100" value="50">
+  </div>
+  <div class="ctl">
+    <label>Volume <b id="vDefVol">80</b></label>
+    <input type="range" id="defVol" min="0" max="100" value="80">
+  </div>
+  <div class="ctl">
+    <label>Retrigger <b id="vDefCool">120 ms</b></label>
+    <input type="range" id="defCool" min="30" max="1200" value="120">
+  </div>
+  <div class="ctl">
+    <label>Release <b id="vDefRel">1.4 s</b></label>
+    <input type="range" id="defRel" min="2" max="40" value="14">
+  </div>
+</footer>
+
+<!-- About modal -->
+<div id="aboutModal" class="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+    <div class="modal-head">
+      <h3 id="aboutTitle">About Loom</h3>
+      <button id="btnAboutClose" class="icon" aria-label="Close">✕</button>
+    </div>
+
+    <p class="modal-text">
+      Loom turns video into a musical instrument. Ropes stretched across the frame act
+      as strings. Whenever something moves across a rope it plays a note. Pitch follows the rope's height on screen, stereo position follows
+      its horizontal placement, and each rope carries its own scale, voice and dynamics.
+      Built for static shots where small movements become composition.
+    </p>
+
+    <h4 class="modal-sub">Credits</h4>
+    <ul class="dir">
+      <li><code>Author</code><span>João Galvão</span></li>
+      <li><code>Year</code><span>2026</span></li>
+    </ul>
+  </div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/lines.js"></script>
+<script src="js/motion.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
