@@ -1,11 +1,4 @@
-/* =====================================================
-   lines.js — rope data, two-click drawing, selection,
-   endpoint dragging, per-rope settings and rendering.
-   Coordinates are normalized to the FULL canvas, so
-   ropes can live outside the video frame.
-   ===================================================== */
-
-const FLASH_COLOR = '#2563eb'; // matches --accent in style.css
+const FLASH_COLOR = '#eb9f25'; // matches --accent in style.css
 
 const Lines = {
   items: [],

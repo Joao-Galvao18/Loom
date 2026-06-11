@@ -1,9 +1,3 @@
-/* =====================================================
-   ui.js — master volume, new-cable defaults, cable list,
-   per-cable inspector. Slider tracks are painted so the
-   filled portion follows the thumb.
-   ===================================================== */
-
 const UI = {
   els: {},
 

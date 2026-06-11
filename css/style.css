@@ -1,7 +1,3 @@
-/* =====================================================
-   Tripwire — modern monochrome app
-   ===================================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root{
@@ -11,7 +7,7 @@
   --border-2: #d4d4d4;
   --ink:      #0a0a0a;
   --dim:      #8a8a8a;
-  --accent:   #2563eb;          /* flash color */
+  --accent:   #eb9f25;
   --radius:   10px;
   --shadow:   0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.05);
   --font: 'Inter', -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -31,7 +27,6 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* ---------- header ---------- */
 header{
   display:flex; align-items:center; gap:10px;
   padding:12px 20px;
@@ -50,7 +45,6 @@ header{
 .spacer{ flex:1; }
 .master{ min-width:170px; margin-right:8px; }
 
-/* ---------- buttons ---------- */
 button{
   font-family:var(--font);
   font-size:12.5px;
@@ -96,7 +90,6 @@ button:focus-visible, select:focus-visible, input:focus-visible{
   outline:2px solid var(--ink); outline-offset:2px;
 }
 
-/* ---------- selects ---------- */
 select{
   font-family:var(--font);
   font-size:12.5px;
@@ -117,7 +110,6 @@ select{
 }
 select:hover{ border-color:#aaa; }
 
-/* ---------- sliders (filled track painted by JS) ---------- */
 .ctl{
   display:flex; flex-direction:column; gap:7px;
   min-width:120px;
@@ -151,7 +143,6 @@ input[type=range]::-moz-range-thumb{
   box-shadow:0 1px 3px rgba(0,0,0,.18);
 }
 
-/* ---------- layout ---------- */
 main{ flex:1; display:flex; min-height:0; }
 
 #stage{
@@ -181,7 +172,6 @@ canvas#view{
 #empty .sub{ color:var(--dim); line-height:1.7; margin-bottom:20px; }
 #empty .row{ display:flex; gap:8px; justify-content:center; }
 
-/* ---------- sidebar ---------- */
 #sidebar{
   width:280px; flex-shrink:0;
   background:var(--surface);
@@ -238,7 +228,6 @@ canvas#view{
 .field{ display:flex; flex-direction:column; gap:6px; }
 .field label{ font-size:11.5px; font-weight:500; color:var(--dim); }
 
-/* toggle switch */
 .switch-field{
   flex-direction:row; align-items:center; justify-content:space-between;
   margin-bottom:16px;
@@ -263,7 +252,6 @@ canvas#view{
 .help p{ color:var(--dim); line-height:1.65; font-size:12px; margin-bottom:8px; }
 .help p:last-child{ margin-bottom:0; }
 
-/* ---------- footer ---------- */
 footer{
   display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap;
   padding:12px 20px 14px;
@@ -280,7 +268,6 @@ footer{
 footer .ctl{ min-width:130px; }
 footer select{ min-width:150px; }
 
-/* ---------- about modal ---------- */
 .modal-overlay{
   position:fixed; inset:0; z-index:50;
   background:rgba(10,10,10,.4);
@@ -326,7 +313,6 @@ footer select{ min-width:150px; }
 }
 .dir span{ color:var(--dim); }
 
-/* ---------- responsive ---------- */
 @media (max-width: 900px){
   main{ flex-direction:column; }
   #sidebar{ width:100%; border-left:none; border-top:1px solid var(--border); max-height:42vh; }

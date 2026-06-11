@@ -1,9 +1,3 @@
-/* =====================================================
-   main.js — sources, full-stage canvas with an inset
-   video frame, pointer interaction (draw / select /
-   drag endpoints), render loop.
-   ===================================================== */
-
 const view = document.getElementById('view');
 const vctx = view.getContext('2d');
 

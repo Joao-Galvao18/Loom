@@ -1,9 +1,3 @@
-/* =====================================================
-   motion.js — frame differencing along each cable.
-   Cables use full-canvas coordinates; only the samples
-   that land inside the video rectangle see motion.
-   ===================================================== */
-
 const Motion = {
   AW: 240,            // analysis buffer width
   AH: 135,
