@@ -21,13 +21,24 @@ Motion.init();
 /* ---------------- sources ---------------- */
 
 const fileInput = document.getElementById('file');
-const bind = (id, fn) => document.getElementById(id).addEventListener('click', fn);
+const bind = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
 
-bind('btnVideo',  () => fileInput.click());
+bind('btnSource', () => fileInput.click());
 bind('btnVideo2', () => fileInput.click());
 bind('btnCam',  startCamera);
 bind('btnCam2', startCamera);
 bind('btnClear', () => Lines.clear());
+
+/* ---------------- mobile bottom-sheet ---------------- */
+const sidebar = document.getElementById('sidebar');
+const scrim = document.getElementById('sheetScrim');
+function openSheet() { sidebar.classList.add('open'); scrim.hidden = false; }
+function closeSheet() { sidebar.classList.remove('open'); scrim.hidden = true; }
+bind('btnSheet', openSheet);
+if (scrim) scrim.addEventListener('click', closeSheet);
+// tapping the drag handle closes it too
+const handle = document.querySelector('.sheet-handle');
+if (handle) handle.addEventListener('click', closeSheet);
 
 fileInput.addEventListener('change', e => {
   const f = e.target.files[0];
@@ -184,6 +195,7 @@ view.addEventListener('pointerdown', e => {
   const hit = Lines.hitTest(p, view.width, view.height);
   if (hit >= 0) {
     Lines.select(hit);
+    if (window.matchMedia('(max-width: 900px)').matches) openSheet();
   } else {
     Lines.deselect();
     Lines.startAt(p);

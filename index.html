@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Loom — video instrument</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -11,15 +11,18 @@
 <header>
   <div class="brand"><span class="dot"></span>Loom</div>
   <div class="spacer"></div>
+
   <div class="ctl master">
-    <label>Master volume</label>
+    <label>Master <b id="vMaster">70</b></label>
     <input type="range" id="master" min="0" max="100" value="70">
   </div>
-  <button id="btnPlay" class="ghost" disabled>Pause</button>
-  <button id="btnClear" class="ghost">Clear all</button>
-  <button id="btnCam" class="ghost">Camera</button>
-  <button id="btnVideo" class="solid">Load video</button>
-  <button id="btnAbout" class="ghost">About</button>
+
+  <div class="header-actions">
+    <button id="btnPlay" class="ghost" disabled>Pause</button>
+    <button id="btnSource" class="solid">Load video</button>
+    <button id="btnAbout" class="icon" aria-label="About">?</button>
+  </div>
+
   <input type="file" id="file" accept="video/*" hidden>
 </header>
 
@@ -29,7 +32,7 @@
     <div id="empty">
       <div class="card">
         <p class="title">No video loaded</p>
-        <p class="sub">Load a static shot<br>
+        <p class="sub">Load a static shot or use your camera.<br>
           Click once to start a rope, click again to finish it.<br>
           Movement crossing a rope plays its note.</p>
         <div class="row">
@@ -38,98 +41,132 @@
         </div>
       </div>
     </div>
+
+    <!-- mobile: floating button to open the panel -->
+    <button id="btnSheet" class="sheet-toggle" aria-label="Open panel">
+      <span id="sheetCount">0</span> ropes
+    </button>
   </section>
 
   <aside id="sidebar">
+    <div class="sheet-handle" aria-hidden="true"></div>
+
+    <div class="ctl master-mobile">
+      <label>Master volume <b id="vMasterM">70</b></label>
+      <input type="range" id="masterM" min="0" max="100" value="70">
+    </div>
+
     <div class="panel">
-      <h2>Ropes</h2>
+      <h2>Ropes <em id="ropeCount"></em></h2>
       <ul id="lineList"><li class="empty-row">None yet</li></ul>
     </div>
 
     <div class="panel" id="inspector" hidden>
-      <h2>Rope <span id="insName">—</span><em id="insNote">—</em></h2>
-
-      <div class="field">
-        <label for="insScale">Scale</label>
-        <select id="insScale"></select>
-      </div>
-      <div class="field">
-        <label for="insVoice">Voice</label>
-        <select id="insVoice"></select>
-      </div>
-      <div class="field">
-        <label for="insOct">Octave shift</label>
-        <select id="insOct">
-          <option value="-2">−2</option>
-          <option value="-1">−1</option>
-          <option value="0" selected>0</option>
-          <option value="1">+1</option>
-          <option value="2">+2</option>
-        </select>
+      <div class="inspector-head">
+        <div class="ins-title">
+          <input type="text" id="insRename" class="rename" maxlength="24" placeholder="Rope name" aria-label="Rope name">
+          <span class="ins-meta"><span id="insName">—</span> · <em id="insNote">—</em></span>
+        </div>
+        <div class="inspector-actions">
+          <label class="switch mute-toggle" title="Silence this rope">
+            <input type="checkbox" id="insMute">
+            <span class="mute-label">Mute</span>
+            <span class="track"><span class="thumb"></span></span>
+          </label>
+          <button id="insDelete" class="icon danger-icon" aria-label="Delete rope">✕</button>
+        </div>
       </div>
 
-      <div class="ctl">
-        <label>Sensitivity <b id="vInsSens">50</b></label>
-        <input type="range" id="insSens" min="1" max="100" value="50">
-      </div>
-      <div class="ctl">
-        <label>Volume <b id="vInsVol">80</b></label>
-        <input type="range" id="insVol" min="0" max="100" value="80">
-      </div>
-      <div class="ctl">
-        <label>Retrigger <b id="vInsCool">120 ms</b></label>
-        <input type="range" id="insCool" min="30" max="1200" value="120">
-      </div>
-      <div class="ctl">
-        <label>Release <b id="vInsRel">1.4 s</b></label>
-        <input type="range" id="insRel" min="2" max="40" value="14">
+      <div class="grid-2">
+        <div class="field">
+          <label for="insScale">Scale</label>
+          <select id="insScale"></select>
+        </div>
+        <div class="field">
+          <label for="insVoice">Voice</label>
+          <select id="insVoice"></select>
+        </div>
+        <div class="field">
+          <label for="insOct">Octave</label>
+          <select id="insOct">
+            <option value="-2">−2</option>
+            <option value="-1">−1</option>
+            <option value="0" selected>0</option>
+            <option value="1">+1</option>
+            <option value="2">+2</option>
+          </select>
+        </div>
+        <div class="ctl">
+          <label>Volume <b id="vInsVol">80</b></label>
+          <input type="range" id="insVol" min="0" max="100" value="80">
+        </div>
       </div>
 
-      <div class="field switch-field">
-        <label for="insMute">Muted</label>
-        <label class="switch">
-          <input type="checkbox" id="insMute">
-          <span class="track"><span class="thumb"></span></span>
-        </label>
-      </div>
-
-      <button id="insDelete" class="danger">Delete rope</button>
+      <details class="advanced">
+        <summary>Advanced</summary>
+        <div class="advanced-body">
+          <div class="ctl">
+            <label>Sensitivity <b id="vInsSens">50</b></label>
+            <input type="range" id="insSens" min="1" max="100" value="50">
+          </div>
+          <div class="ctl">
+            <label>Retrigger <b id="vInsCool">120 ms</b></label>
+            <input type="range" id="insCool" min="30" max="1200" value="120">
+          </div>
+          <div class="ctl">
+            <label>Release <b id="vInsRel">1.4 s</b></label>
+            <input type="range" id="insRel" min="2" max="40" value="14">
+          </div>
+        </div>
+      </details>
     </div>
+
+    <details class="panel defaults-panel">
+      <summary><h2>New rope defaults</h2></summary>
+      <div class="defaults-body">
+        <div class="grid-2">
+          <div class="field">
+            <label>Scale</label>
+            <select id="defScale"></select>
+          </div>
+          <div class="field">
+            <label>Voice</label>
+            <select id="defVoice"></select>
+          </div>
+          <div class="ctl">
+            <label>Sensitivity <b id="vDefSens">50</b></label>
+            <input type="range" id="defSens" min="1" max="100" value="50">
+          </div>
+          <div class="ctl">
+            <label>Volume <b id="vDefVol">80</b></label>
+            <input type="range" id="defVol" min="0" max="100" value="80">
+          </div>
+          <div class="ctl">
+            <label>Retrigger <b id="vDefCool">120 ms</b></label>
+            <input type="range" id="defCool" min="30" max="1200" value="120">
+          </div>
+          <div class="ctl">
+            <label>Release <b id="vDefRel">1.4 s</b></label>
+            <input type="range" id="defRel" min="2" max="40" value="14">
+          </div>
+        </div>
+      </div>
+    </details>
 
     <div class="panel help">
       <h2>How to use</h2>
-      <p>Click two points to draw a rope anywhere, even outside the video frame. Click a rope to edit it, grab an endpoint to move it.</p>
-      <p>Pitch follows height, pan follows horizontal position. Esc cancels or deselects, Delete removes.</p>
+      <p>Click two points to draw a rope, even outside the frame. Click a rope to edit it, drag an endpoint to move it.</p>
+      <p>Pitch follows height, pan follows horizontal position. Esc deselects, Delete removes.</p>
     </div>
   </aside>
+
+  <div id="sheetScrim" class="sheet-scrim" hidden></div>
 </main>
 
 <footer>
-  <span class="footer-label">New rope defaults</span>
-  <div class="ctl">
-    <label>Scale</label>
-    <select id="defScale"></select>
-  </div>
-  <div class="ctl">
-    <label>Voice</label>
-    <select id="defVoice"></select>
-  </div>
-  <div class="ctl">
-    <label>Sensitivity <b id="vDefSens">50</b></label>
-    <input type="range" id="defSens" min="1" max="100" value="50">
-  </div>
-  <div class="ctl">
-    <label>Volume <b id="vDefVol">80</b></label>
-    <input type="range" id="defVol" min="0" max="100" value="80">
-  </div>
-  <div class="ctl">
-    <label>Retrigger <b id="vDefCool">120 ms</b></label>
-    <input type="range" id="defCool" min="30" max="1200" value="120">
-  </div>
-  <div class="ctl">
-    <label>Release <b id="vDefRel">1.4 s</b></label>
-    <input type="range" id="defRel" min="2" max="40" value="14">
-  </div>
+  <button id="btnCam" class="link">Use camera instead</button>
+  <span class="spacer"></span>
+  <button id="btnClear" class="link">Clear all ropes</button>
 </footer>
 
 <div id="aboutModal" class="modal-overlay" hidden>

@@ -28,6 +28,7 @@ const Lines = {
       const d = this.defaults;
       this.items.push({
         id: this.nextId++,
+        name: '',
         x1: this.pending.x, y1: this.pending.y,
         x2: p.x, y2: p.y,
         scale: d.scale, voice: d.voice,
@@ -72,6 +73,11 @@ const Lines = {
   },
 
   label(l) { return 'R' + String(l.id).padStart(2, '0'); },
+
+  // custom name if the user set one, otherwise the code (R01, R02…)
+  displayName(l) {
+    return (l.name && l.name.trim()) ? l.name.trim() : this.label(l);
+  },
 
   /* ------------ hit testing ------------ */
 
@@ -147,12 +153,14 @@ const Lines = {
       this._handle(ctx, x1, y1, sel, hot);
       this._handle(ctx, x2, y2, sel, hot);
 
-      // plain note label at the midpoint
+      // label at the midpoint: note, prefixed with the rope name if set
       ctx.font = '600 11px Inter, -apple-system, Helvetica, Arial, sans-serif';
       ctx.shadowColor = 'rgba(0,0,0,0.7)';
       ctx.shadowBlur = 3;
       ctx.fillStyle = hot ? FLASH_COLOR : '#ffffff';
-      ctx.fillText(Audio.midiName(this.midiOf(l)), (x1 + x2) / 2 + 8, (y1 + y2) / 2 - 8);
+      const note = Audio.midiName(this.midiOf(l));
+      const tag = (l.name && l.name.trim()) ? l.name.trim() + ' · ' + note : note;
+      ctx.fillText(tag, (x1 + x2) / 2 + 8, (y1 + y2) / 2 - 8);
       ctx.shadowBlur = 0;
     });
 

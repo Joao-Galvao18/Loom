@@ -4,7 +4,9 @@ const UI = {
   init() {
     const $ = id => document.getElementById(id);
     this.els = {
-      master: $('master'),
+      master: $('master'), vMaster: $('vMaster'),
+      masterM: $('masterM'), vMasterM: $('vMasterM'),
+      ropeCount: $('ropeCount'), sheetCount: $('sheetCount'),
       // defaults (footer)
       defScale: $('defScale'), defVoice: $('defVoice'),
       defSens: $('defSens'), defVol: $('defVol'),
@@ -14,7 +16,7 @@ const UI = {
       // list + inspector
       lineList: $('lineList'),
       inspector: $('inspector'),
-      insName: $('insName'), insNote: $('insNote'),
+      insName: $('insName'), insNote: $('insNote'), insRename: $('insRename'),
       insScale: $('insScale'), insVoice: $('insVoice'), insOct: $('insOct'),
       insSens: $('insSens'), insVol: $('insVol'),
       insCool: $('insCool'), insRel: $('insRel'),
@@ -28,8 +30,16 @@ const UI = {
     this._fillVoiceSelect(this.els.defVoice);
     this._fillVoiceSelect(this.els.insVoice);
 
-    // master volume
-    this._range(this.els.master, v => Audio.setMasterVolume(v / 100));
+    // master volume — header + mobile sheet stay in sync
+    const applyMaster = v => {
+      Audio.setMasterVolume(v / 100);
+      this.els.vMaster.textContent = v;
+      if (this.els.vMasterM) this.els.vMasterM.textContent = v;
+      if (this.els.master.value != v) { this.els.master.value = v; this.paintRange(this.els.master); }
+      if (this.els.masterM && this.els.masterM.value != v) { this.els.masterM.value = v; this.paintRange(this.els.masterM); }
+    };
+    this._range(this.els.master, applyMaster);
+    if (this.els.masterM) this._range(this.els.masterM, applyMaster);
 
     // new-cable defaults
     this.els.defScale.addEventListener('change', () => Lines.defaults.scale = this.els.defScale.value);
@@ -49,6 +59,10 @@ const UI = {
     this._range(this.els.insRel,  v => this._editLive(l => { l.rel = v / 10; this.els.vInsRel.textContent = (v / 10).toFixed(1) + ' s'; }));
     this.els.insMute.addEventListener('change', () => this._edit(l => l.muted = this.els.insMute.checked));
     this.els.insDelete.addEventListener('click', () => Lines.deleteSelected());
+    // rename: update live as they type, refresh list only on blur/enter
+    this.els.insRename.addEventListener('input', () => this._editLive(l => l.name = this.els.insRename.value));
+    this.els.insRename.addEventListener('change', () => { this.refreshList(); });
+    this.els.insRename.addEventListener('keydown', e => { if (e.key === 'Enter') this.els.insRename.blur(); });
 
     // about modal
     const modal = document.getElementById('aboutModal');
@@ -125,7 +139,10 @@ const UI = {
   refreshList() {
     const ul = this.els.lineList;
     ul.innerHTML = '';
-    if (Lines.items.length === 0) {
+    const n = Lines.items.length;
+    if (this.els.ropeCount) this.els.ropeCount.textContent = n ? n : '';
+    if (this.els.sheetCount) this.els.sheetCount.textContent = n;
+    if (n === 0) {
       const li = document.createElement('li');
       li.className = 'empty-row';
       li.textContent = 'None yet';
@@ -136,7 +153,7 @@ const UI = {
       const li = document.createElement('li');
       li.className = (i === Lines.selected ? 'selected ' : '') + (l.muted ? 'muted-line' : '');
       li.innerHTML =
-        '<span class="id">' + Lines.label(l) + '</span>' +
+        '<span class="id">' + this._esc(Lines.displayName(l)) + '</span>' +
         '<span class="note">' + Audio.midiName(Lines.midiOf(l)) + '</span>' +
         '<span class="scale">' + Audio.SCALES[l.scale].name + '</span>' +
         '<span class="meter"><i></i></span>';
@@ -145,11 +162,18 @@ const UI = {
     });
   },
 
+  _esc(s) {
+    return String(s).replace(/[&<>"]/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  },
+
   refreshInspector() {
     const l = Lines.current;
     if (!l) { this.els.inspector.hidden = true; return; }
     const e = this.els;
     e.inspector.hidden = false;
+    if (document.activeElement !== e.insRename) e.insRename.value = l.name || '';
+    e.insRename.placeholder = Lines.label(l);
     e.insName.textContent = Lines.label(l);
     e.insNote.textContent = Audio.midiName(Lines.midiOf(l));
     e.insScale.value = l.scale;
